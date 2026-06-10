@@ -4,6 +4,14 @@ namespace YDMisal.API.Repository
 {
     public interface IRegionRepository
     {
-        IEnumerable<Region> GetAllAsync();
+       Task<IEnumerable<Region>> GetAllAsync();
+
+       Task<Region> GetAsync(Guid id);
+
+       Task<Region> AddAsync(Region region);
+
+       Task<Region?> UpdateAsync(Guid id, Region region);
+
+        Task<Region?> DeleteAsync(Guid id);
     }
 }

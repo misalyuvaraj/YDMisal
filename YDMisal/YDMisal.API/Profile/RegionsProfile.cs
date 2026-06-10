@@ -6,8 +6,7 @@ namespace YDMisal.API.Profiles
     {
         public RegionsProfile()
         {
-            CreateMap<Models.Domain.Region, Models.DTO.Region>()
-                .ReverseMap();
+            CreateMap<Models.Domain.Region, Models.DTO.Region>();
         }
     }
 }
