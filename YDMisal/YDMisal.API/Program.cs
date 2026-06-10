@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using YDMisal.API.Data;
 using YDMisal.API.Repository;
@@ -7,19 +8,23 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.CustomSchemaIds(type => type.FullName);
+});
 
 builder.Services.AddDbContext<NZWalksDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalks"));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("NZWalks"));
 });
+
 builder.Services.AddScoped<IRegionRepository, RegionRepository>();
+builder.Services.AddScoped<IWalkRepository, WalkRepository>();
 
-builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
-
-
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 var app = builder.Build();
 

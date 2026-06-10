@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-
-namespace YDMisal.API.Profiles
+﻿namespace YDMisal.API.Profile
 {
-    public class RegionsProfile : Profile
+    public class RegionsProfile : AutoMapper.Profile
     {
         public RegionsProfile()
         {

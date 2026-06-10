@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using YDMisal.API.Models.DTO;
 using YDMisal.API.Repository;
 
-
 namespace YDMisal.API.Controllers
 {
     [ApiController]
@@ -18,61 +17,56 @@ namespace YDMisal.API.Controllers
             this.regionRepository = regionRepository;
             this.mapper = mapper;
         }
+
+        // GET: /Regions
         [HttpGet]
         public async Task<IActionResult> GetAllRegions()
         {
             var regions = await regionRepository.GetAllAsync();
-            var regionsDTO = mapper.Map<List<Models.DTO.Region>>(regions);
+            var regionsDTO = mapper.Map<List<Region>>(regions);
 
             return Ok(regionsDTO);
         }
 
+        // GET: /Regions/{id}
         [HttpGet]
         [Route("{id:guid}")]
         [ActionName("GetRegionAsync")]
         public async Task<IActionResult> GetRegionAsync(Guid id)
         {
-
             var region = await regionRepository.GetAsync(id);
 
             if (region == null)
             {
                 return NotFound();
             }
-            var regionDTO = mapper.Map<Models.DTO.Region>(region);
+
+            var regionDTO = mapper.Map<Region>(region);
 
             return Ok(regionDTO);
         }
 
+        // POST: /Regions
         [HttpPost]
-        public async Task<IActionResult> AddRegionAsync(Models.DTO.AddRegionRequest addRegionRequest)
+        public async Task<IActionResult> AddRegionAsync(AddRegionRequest addRegionRequest)
         {
             var regionDomain = new Models.Domain.Region()
             {
                 Code = addRegionRequest.Code,
+                Name = addRegionRequest.Name,
                 Area = addRegionRequest.Area,
                 Lat = addRegionRequest.Lat,
                 Long = addRegionRequest.Long,
-                Name = addRegionRequest.Name,
                 Population = addRegionRequest.Population
             };
 
             var savedRegion = await regionRepository.AddAsync(regionDomain);
-
-            var regionDto = new Models.DTO.Region()
-            {
-                Id = savedRegion.Id,
-                Code = savedRegion.Code,
-                Area = savedRegion.Area,
-                Lat = savedRegion.Lat,
-                Long = savedRegion.Long,
-                Name = savedRegion.Name,
-                Population = savedRegion.Population
-            };
+            var regionDto = mapper.Map<Region>(savedRegion);
 
             return CreatedAtAction(nameof(GetRegionAsync), new { id = regionDto.Id }, regionDto);
         }
 
+        // PUT: /Regions/{id}
         [HttpPut]
         [Route("{id:guid}")]
         public async Task<IActionResult> UpdateRegionAsync(Guid id, UpdateRegionRequest updateRegionRequest)
@@ -94,20 +88,12 @@ namespace YDMisal.API.Controllers
                 return NotFound();
             }
 
-            var regionDto = new Models.DTO.Region()
-            {
-                Id = updatedRegion.Id,
-                Code = updatedRegion.Code,
-                Area = updatedRegion.Area,
-                Lat = updatedRegion.Lat,
-                Long = updatedRegion.Long,
-                Name = updatedRegion.Name,
-                Population = updatedRegion.Population
-            };
+            var regionDto = mapper.Map<Region>(updatedRegion);
 
             return Ok(regionDto);
         }
 
+        // DELETE: /Regions/{id}
         [HttpDelete]
         [Route("{id:guid}")]
         public async Task<IActionResult> DeleteRegionAsync(Guid id)
@@ -119,10 +105,9 @@ namespace YDMisal.API.Controllers
                 return NotFound();
             }
 
-            var regionDto = mapper.Map<Models.DTO.Region>(deletedRegion);
+            var regionDto = mapper.Map<Region>(deletedRegion);
 
             return Ok(regionDto);
         }
     }
-
 }
