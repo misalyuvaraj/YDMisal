@@ -1,8 +1,8 @@
-﻿namespace YDMisal.API.Models.DTO
+namespace YDMisal.API.Models.DTO
 {
     public class AddWalkRequest
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public double Lenght { get; set; }
         public Guid RegionId { get; set; }
         public Guid WalkDifficultyId { get; set; }

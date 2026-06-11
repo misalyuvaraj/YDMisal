@@ -1,7 +1,7 @@
-﻿namespace YDMisal.API.Models.DTO
+namespace YDMisal.API.Models.DTO
 {
     public class UpdateWalkDifficultyRequest
     {
-        public string Code { get; set; }
+        public string Code { get; set; } = string.Empty;
     }
 }
