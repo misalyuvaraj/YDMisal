@@ -10,29 +10,23 @@ namespace YDMisal.API.Controllers
     {
         private readonly IWalkRepository walkRepository;
         private readonly IMapper mapper;
-        private readonly IRegionRepository regionRepository;
-        private readonly IWalkDifficultyRepository walkDifficultyRepository;
 
-        public WalksController(IWalkRepository walkRepository, IMapper mapper, IRegionRepository regionRepository, IWalkDifficultyRepository walkDifficultyRepository)
+        public WalksController(IWalkRepository walkRepository, IMapper mapper)
         {
             this.walkRepository = walkRepository;
             this.mapper = mapper;
-            this.regionRepository = regionRepository;
-            this.walkDifficultyRepository = walkDifficultyRepository;
         }
+
+        // GET: /Walks
         [HttpGet]
         public async Task<IActionResult> GetAllWalksAsync()
         {
-            // Fetch data from database - domain walks
-           var walksDomain = await walkRepository.GetAllAsync();
-
-            // Convert Domain Walks to DTO Walks
+            var walksDomain = await walkRepository.GetAllAsync();
             var walksDTO = mapper.Map<List<Models.DTO.Walk>>(walksDomain);
-
-            // Return Response
             return Ok(walksDTO);
         }
 
+        // GET: /Walks/{id}
         [HttpGet]
         [Route("{id:guid}")]
         [ActionName("GetWalkAsync")]
@@ -46,19 +40,14 @@ namespace YDMisal.API.Controllers
             }
 
             var walkDTO = mapper.Map<Models.DTO.Walk>(walkDomain);
-
             return Ok(walkDTO);
         }
 
-
+        // POST: /Walks
         [HttpPost]
         public async Task<IActionResult> AddWalkAsync([FromBody] Models.DTO.AddWalkRequest addWalkRequest)
         {
-            if (!await ValidateAddWalkAsync(addWalkRequest))
-            {
-                return BadRequest(ModelState);
-            }
-
+            // FluentValidation runs automatically via [ApiController] + AddFluentValidationAutoValidation()
             var walkDomain = new Models.Domain.Walk
             {
                 Lenght = addWalkRequest.Lenght,
@@ -72,16 +61,14 @@ namespace YDMisal.API.Controllers
 
             return CreatedAtAction(nameof(GetWalkAsync), new { id = walkDTO.Id }, walkDTO);
         }
+
+        // PUT: /Walks/{id}
         [HttpPut]
         [Route("{id:guid}")]
         public async Task<IActionResult> UpdateWalkAsync(Guid id,
             [FromBody] Models.DTO.UpdateWalkRequest updateWalkRequest)
         {
-            if (!await ValidateUpdateWalkAsync(updateWalkRequest))
-            {
-                return BadRequest(ModelState);
-            }
-
+            // FluentValidation runs automatically via [ApiController] + AddFluentValidationAutoValidation()
             var walkDomain = new Models.Domain.Walk
             {
                 Lenght = updateWalkRequest.Lenght,
@@ -98,10 +85,10 @@ namespace YDMisal.API.Controllers
             }
 
             var walkDTO = mapper.Map<Models.DTO.Walk>(updatedWalk);
-
             return Ok(walkDTO);
         }
 
+        // DELETE: /Walks/{id}
         [HttpDelete]
         [Route("{id:guid}")]
         public async Task<IActionResult> DeleteWalkAsync(Guid id)
@@ -114,88 +101,7 @@ namespace YDMisal.API.Controllers
             }
 
             var walkDTO = mapper.Map<Models.DTO.Walk>(walkDomain);
-
             return Ok(walkDTO);
         }
-
-        #region Private Methods
-
-        private async Task<bool> ValidateAddWalkAsync(Models.DTO.AddWalkRequest addWalkRequest)
-        {
-            if (addWalkRequest == null)
-            {
-                ModelState.AddModelError(nameof(addWalkRequest), "Walk data is required.");
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(addWalkRequest.Name))
-            {
-                ModelState.AddModelError(nameof(addWalkRequest.Name), $"{nameof(addWalkRequest.Name)} cannot be null or empty or white space");
-            }
-
-            if (addWalkRequest.Lenght <= 0)
-            {
-                ModelState.AddModelError(nameof(addWalkRequest.Lenght), $"{nameof(addWalkRequest.Lenght)} cannot be less than or equal to zero");
-            }
-
-            var region = await regionRepository.GetAsync(addWalkRequest.RegionId);
-            if (region == null)
-            {
-                ModelState.AddModelError(nameof(addWalkRequest.RegionId), $"{nameof(addWalkRequest.RegionId)} is invalid");
-            }
-
-            var walkDifficulty = await walkDifficultyRepository.GetAsync(addWalkRequest.WalkDifficultyId);
-            if (walkDifficulty == null)
-            {
-                ModelState.AddModelError(nameof(addWalkRequest.WalkDifficultyId), $"{nameof(addWalkRequest.WalkDifficultyId)} is invalid");
-            }
-
-            if (ModelState.ErrorCount > 0)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private async Task<bool> ValidateUpdateWalkAsync(Models.DTO.UpdateWalkRequest updateWalkRequest)
-        {
-            if (updateWalkRequest == null)
-            {
-                ModelState.AddModelError(nameof(updateWalkRequest), "Walk data is required.");
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(updateWalkRequest.Name))
-            {
-                ModelState.AddModelError(nameof(updateWalkRequest.Name), $"{nameof(updateWalkRequest.Name)} cannot be null or empty or white space");
-            }
-
-            if (updateWalkRequest.Lenght <= 0)
-            {
-                ModelState.AddModelError(nameof(updateWalkRequest.Lenght), $"{nameof(updateWalkRequest.Lenght)} cannot be less than or equal to zero");
-            }
-
-            var region = await regionRepository.GetAsync(updateWalkRequest.RegionId);
-            if (region == null)
-            {
-                ModelState.AddModelError(nameof(updateWalkRequest.RegionId), $"{nameof(updateWalkRequest.RegionId)} is invalid");
-            }
-
-            var walkDifficulty = await walkDifficultyRepository.GetAsync(updateWalkRequest.WalkDifficultyId);
-            if (walkDifficulty == null)
-            {
-                ModelState.AddModelError(nameof(updateWalkRequest.WalkDifficultyId), $"{nameof(updateWalkRequest.WalkDifficultyId)} is invalid");
-            }
-
-            if (ModelState.ErrorCount > 0)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        #endregion
     }
 }
